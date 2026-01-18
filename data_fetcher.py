@@ -9,7 +9,7 @@ if not mt5.initialize():
 print(f"MT5 version: {mt5.version()}")
 print(f"MT5 terminal info: {mt5.terminal_info()}")
 
-symbol = "XAUUSD"
+symbol = "XAUUSDm"
 if not mt5.symbol_select(symbol, True):
     print(f"Failed to select {symbol}")
     mt5.shutdown()

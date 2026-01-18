@@ -1,6 +1,6 @@
 from market_data import MarketDataFetcher
 
-fetcher = MarketDataFetcher(symbol="XAUUSD")
+fetcher = MarketDataFetcher(symbol="XAUUSDm")
 
 if fetcher.connect():
     

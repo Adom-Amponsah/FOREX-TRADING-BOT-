@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 class MarketDataFetcher:
     """Handles all MT5 data fetching operations"""
     
-    def __init__(self, symbol="XAUUSD"):
+    def __init__(self, symbol="XAUUSDm"):
         self.symbol = symbol
         self.connected = False
         

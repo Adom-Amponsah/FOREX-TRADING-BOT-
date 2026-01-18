@@ -3,7 +3,7 @@ import MetaTrader5 as mt5
 class OrderExecutor:
     """Executes trades via MT5"""
     
-    def __init__(self, symbol="XAUUSD", magic_number=12345):
+    def __init__(self, symbol="XAUUSDm", magic_number=12345):
         """
         Args:
             symbol: Trading symbol

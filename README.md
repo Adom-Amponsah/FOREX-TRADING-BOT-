@@ -1,19 +1,19 @@
-# Gold Trading Bot - Complete Week 1 System
+# Forex Trading Bot - Production System
 
 ## Project Structure
 ```
-gold_trading_bot/
+forex_trading_bot/
 ├── logs/                          # Output files (charts, data, signals)
 │
 ├── Core Modules:
 ├── data_fetcher.py               # Initial MT5 connection test
 ├── market_data.py                # Reusable data fetching class
 ├── visualizer.py                 # Chart visualization
-├── pattern_detector.py           # Pattern detection + filters + S/R
+├── pattern_detector.py           # Pattern detection + filters + S/R (11 patterns)
 ├── multi_timeframe.py            # Multi-timeframe analysis
 ├── support_resistance.py         # Support/Resistance detection
 ├── backtest_engine.py            # Backtesting system
-├── live_scanner.py               # Real-time pattern scanner
+├── live_scanner.py               # Real-time pattern scanner with Telegram alerts
 ├── order_executor.py             # Trade execution (demo)
 │
 ├── Test Scripts:
@@ -27,11 +27,11 @@ gold_trading_bot/
 ├── test_live_scanner.py          # Test live scanner
 │
 ├── Production Scripts:
-├── run_backtest.py               # Run full backtest
-├── optimize_parameters.py        # Parameter optimization
-├── analyze_backtest.py           # Generate performance charts
-├── production_bot.py             # Production scanner with CLI
+├── comprehensive_backtest.py     # Comprehensive backtest for all 11 patterns
+├── production_bot.py             # Production scanner with CLI and Telegram alerts
 │
+├── Configuration:
+├── .env                          # Environment variables (Telegram bot token/chat ID)
 └── requirements.txt              # Python dependencies
 └── README.md                     # This file
 ```
@@ -43,64 +43,89 @@ gold_trading_bot/
 - Open demo account with MetaQuotes Software Corp
 - Enable XAUUSD symbol in Market Watch
 
-### 2. Python Environment
+### 2. Python Environment (Python 3.10)
 ```powershell
-# Create virtual environment
-python -m venv venv
+# Create virtual environment with Python 3.10
+py -3.10 -m venv .venv
 
 # Activate it
-venv\Scripts\activate
+.venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
 ```
 
-### 3. Test Connection
+### 3. Configure Telegram Alerts (Optional)
+Create a `.env` file with your Telegram bot credentials:
+```powershell
+# Set environment variables
+$env:TELEGRAM_BOT_TOKEN="your_bot_token_here"
+$env:TELEGRAM_CHAT_ID="your_chat_id_here"
+```
+
+### 4. Test Connection
 ```powershell
 python data_fetcher.py
 ```
 
-## Complete Testing Sequence
+## Production Usage
 
-### Days 1-4: Foundation Tests
+### Comprehensive Backtesting
 ```powershell
-# Test 1: Data fetching
-python test_market_data.py
+# Run comprehensive backtest on all 11 patterns
+python comprehensive_backtest.py
+```
+This will:
+- Test all 11 patterns on 2000 candles of historical data
+- Apply high-precision filters (trend, RSI, ATR)
+- Generate performance statistics for each pattern
+- Save trade logs to `logs/backtest_*.csv`
+- Export ML dataset to `logs/ml_dataset.csv`
 
-# Test 2: Chart visualization
-python test_visualizer.py
+### Production Trading Bot
 
-# Test 3: Pattern detection
-python test_pattern_detector.py
+#### Alert-Only Mode (Recommended)
+```powershell
+# Default: 15-minute timeframe, scan every 60 seconds
+python production_bot.py --timeframe 15 --interval 60
 
-# Test 4: Visual validation
-python test_visual_validation.py
-
-# Test 5: Quality filters
-python test_filters.py
+# Custom timeframe and interval
+python production_bot.py --timeframe 5 --interval 30
+python production_bot.py --timeframe 60 --interval 120
 ```
 
-### Days 5-7: Advanced Tests
+#### Auto-Trading Mode (DEMO ACCOUNT ONLY)
 ```powershell
-# Test 6: Support/Resistance detection
-python test_support_resistance.py
-
-# Test 7: S/R + Pattern integration
-python test_sr_integration.py
-
-# Test 8: Run full backtest
-python run_backtest.py
-
-# Test 9: Parameter optimization (takes 2-3 minutes)
-python optimize_parameters.py
-
-# Test 10: Generate performance charts
-python analyze_backtest.py
-
-# Test 11: Live scanner (alert-only mode)
-python test_live_scanner.py
-# Press Ctrl+C to stop
+# Enable automatic trade execution
+python production_bot.py --timeframe 15 --interval 60 --auto
 ```
+⚠️ **WARNING**: Auto-trading should only be used with demo accounts
+
+### Command Line Options
+- `--timeframe`: Chart timeframe in minutes (default: 15)
+- `--interval`: Scan interval in seconds (default: 60)
+- `--auto`: Enable automatic trade execution (demo only)
+
+### Telegram Integration
+The bot sends Telegram alerts when patterns are detected:
+- Pattern type and direction (bullish/bearish)
+- Entry price, stop loss, and take profit levels
+- Risk/reward ratio
+- Current market conditions
+- Real-time notifications when patterns match
+
+## Supported Patterns (11 Total)
+1. **Bullish Engulfing** - Reversal pattern at support
+2. **Bearish Engulfing** - Reversal pattern at resistance
+3. **Hammer** - Bullish reversal with long lower wick
+4. **Shooting Star** - Bearish reversal with long upper wick
+5. **Morning Star** - Three-candle bullish reversal
+6. **Evening Star** - Three-candle bearish reversal
+7. **Falling Wedge** - Bullish continuation pattern
+8. **Rising Wedge** - Bearish reversal pattern
+9. **Ascending Triangle** - Bullish continuation pattern
+10. **Descending Triangle** - Bearish continuation pattern
+11. **Double Bottom** - Bullish reversal pattern
 
 ## Key Features
 
@@ -111,11 +136,12 @@ python test_live_scanner.py
 - Gets current bid/ask prices
 
 ### PatternDetector
-- Detects bullish/bearish engulfing patterns
+- Detects 11 different candlestick and chart patterns
 - Calculates technical indicators (RSI, EMA, ATR, Volume MA)
-- Applies quality filters (RSI, trend, volume)
+- Applies quality filters (RSI, trend, volume, ATR)
 - Integrates support/resistance confirmation
 - Returns high-probability setups only
+- High-precision mode with pattern allowlist for >=60% win-rate
 
 ### SupportResistanceDetector
 - Identifies swing highs and lows
@@ -136,10 +162,12 @@ python test_live_scanner.py
 
 ### LiveScanner
 - Continuously monitors market for patterns
-- Detects new candle formation
+- Configurable timeframes and scan intervals
+- Real-time Telegram notifications for pattern matches
 - Applies all filters in real-time
-- Alerts with complete trade setup
+- Alert-only mode for manual trading
 - Optional auto-execution (demo only)
+- Supports 11 different pattern types
 
 ### OrderExecutor
 - Executes market orders via MT5
@@ -154,29 +182,41 @@ python test_live_scanner.py
 - P&L distribution analysis
 - Exit reason pie charts
 
-## Production Deployment
+## Quick Start Guide
 
-### Alert-Only Mode (Safe)
+### 1. Setup Environment
 ```powershell
-python production_bot.py
+# Create and activate virtual environment
+py -3.10 -m venv .venv
+.venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
 ```
 
-### Auto-Trading Mode (DEMO ACCOUNT ONLY)
+### 2. Configure Telegram (Optional)
+Set up your `.env` file with Telegram credentials for real-time alerts.
+
+### 3. Run Comprehensive Backtest
 ```powershell
-python production_bot.py --auto
+python comprehensive_backtest.py
 ```
+This validates all 11 patterns and shows which ones perform best.
 
-### Custom Settings
+### 4. Start Production Bot
 ```powershell
-# 5-minute timeframe, scan every 30 seconds
-python production_bot.py --timeframe 5 --interval 30
+# Alert-only mode (recommended)
+python production_bot.py --timeframe 15 --interval 60
 
-# 1-hour timeframe with auto-trading
-python production_bot.py --timeframe 60 --auto
+# Auto-trading mode (demo only)
+python production_bot.py --timeframe 15 --interval 60 --auto
 ```
 
 ## Important Notes
-- MT5 must be running for data fetching
-- Demo account is free and unlimited
-- All times are in MT5 server time
-- Spread varies with market conditions
+- **Python Version**: Requires Python 3.10
+- **MT5 Requirement**: MetaTrader 5 must be running for data fetching
+- **Demo Account**: Free and unlimited, recommended for testing
+- **Time Zones**: All times are in MT5 server time
+- **Market Conditions**: Spread varies with market conditions
+- **Risk Management**: Always use stop losses and proper position sizing
+- **Telegram Alerts**: Real-time notifications when patterns match your criteria
